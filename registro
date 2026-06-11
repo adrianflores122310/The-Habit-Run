@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Habit Run · Registro — BioHabit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;700;800;900&family=Barlow:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:  #050505;
+    --blue:   #0047FF;
+    --white:  #FFFFFF;
+    --g400:   #ffffff;
+    --g600:   #333333;
+    --g700:   #1a1a1a;
+    --glass:  rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.07);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE ── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* ── ORBS ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(0,71,255,0.18) 0%, transparent 65%);
+    top: -200px; left: 50%; transform: translateX(-50%);
+    animation: breathe 7s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,71,255,0.08) 0%, transparent 65%);
+    bottom: -100px; right: -100px;
+    animation: breathe 10s ease-in-out infinite reverse;
+  }
+  @keyframes breathe {
+    0%,100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+    50%      { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+  }
+  .orb-2 { animation-name: breathe2; }
+  @keyframes breathe2 {
+    0%,100% { opacity: 0.5; transform: scale(1); }
+    50%      { opacity: 0.9; transform: scale(1.12); }
+  }
+
+  /* ── GRID ── */
+  .grid-bg {
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,71,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,71,255,0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black, transparent);
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  /* ── LOGO BAR ── */
+  .logo-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(20px);
+    background: rgba(5,5,5,0.6);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 18px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--white); text-decoration: none;
+  }
+  .logo b { color: var(--blue); font-weight: 900; }
+  .logo-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 0.2em;
+    color: var(--g400); text-transform: uppercase;
+  }
+
+  /* ── CARD ── */
+  .card {
+    width: 100%; max-width: 480px;
+    margin-top: 64px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 48px 40px 40px;
+    backdrop-filter: blur(24px);
+    position: relative;
+    overflow: hidden;
+    animation: card-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* top accent line */
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--blue) 40%, var(--blue) 60%, transparent 100%);
+  }
+
+  /* ── CARD HEADER ── */
+  .card-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 0.28em;
+    color: var(--blue); text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+    animation: fade-up 0.6s ease both 0.2s;
+  }
+  .card-eyebrow::before {
+    content: ''; display: block;
+    width: 20px; height: 1px; background: var(--blue);
+  }
+
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 56px;
+    line-height: 0.92; letter-spacing: -0.01em;
+    text-transform: uppercase;
+    animation: fade-up 0.7s ease both 0.3s;
+  }
+  .card-title .accent { color: var(--blue); }
+
+  .card-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300; font-size: 14px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--g400); margin-top: 12px;
+    animation: fade-up 0.6s ease both 0.4s;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px; background: var(--border);
+    margin: 28px 0;
+    animation: fade-up 0.5s ease both 0.45s;
+  }
+
+  /* ── META PILLS ── */
+  .meta {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 28px;
+    animation: fade-up 0.6s ease both 0.5s;
+  }
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 0.15em;
+    color: var(--g400); text-transform: uppercase;
+    border: 1px solid var(--g600);
+    padding: 5px 12px; border-radius: 100px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pill-dot {
+    width: 5px; height: 5px;
+    background: var(--blue); border-radius: 50%;
+  }
+
+  /* ── FORM ── */
+  .form-wrap { animation: fade-up 0.6s ease both 0.55s; }
+
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 0.22em;
+    color: var(--g400); text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px; font-weight: 400;
+    padding: 14px 18px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+  .field input::placeholder { color: #333; }
+  .field input:focus {
+    border-color: var(--blue);
+    background: rgba(0,71,255,0.06);
+    box-shadow: 0 0 0 3px rgba(0,71,255,0.1);
+  }
+
+  /* ── SUBMIT ── */
+  .btn {
+    width: 100%;
+    margin-top: 8px;
+    background: var(--blue);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800; font-size: 14px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 16px 24px;
+    border: none; border-radius: 3px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+    box-shadow: 0 4px 24px rgba(0,71,255,0.35);
+  }
+  .btn:hover:not(:disabled) {
+    background: #1a5cff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 36px rgba(0,71,255,0.5);
+  }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  .btn-arrow { transition: transform 0.25s; }
+  .btn:hover:not(:disabled) .btn-arrow { transform: translateX(4px); }
+
+  /* spinner */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.65s linear infinite;
+    display: none; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ERROR / NOTE ── */
+  .form-error {
+    font-size: 12px; color: #FF4B4B;
+    margin-top: 12px; display: none;
+    text-align: center; font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .form-note {
+    font-size: 11px; color: #333;
+    margin-top: 14px; text-align: center;
+    font-family: 'Space Mono', monospace; letter-spacing: 0.06em;
+  }
+
+  /* ── COUNTER ── */
+  .counter-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px;
+    animation: fade-up 0.6s ease both 0.52s;
+  }
+  .counter-bar-track {
+    flex: 1; height: 3px;
+    background: var(--g600); border-radius: 2px; overflow: hidden;
+  }
+  .counter-bar-fill {
+    height: 100%; background: var(--blue);
+    border-radius: 2px; width: 0%;
+    transition: width 1.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .counter-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 0.15em;
+    color: var(--g400); white-space: nowrap;
+  }
+  .counter-label strong { color: var(--white); }
+
+  /* ── SUCCESS ── */
+  .success-state {
+    display: none;
+    text-align: center;
+    padding: 16px 0;
+    animation: fade-up 0.5s ease both;
+  }
+  .success-icon {
+    width: 60px; height: 60px;
+    background: rgba(0,71,255,0.1);
+    border: 1px solid rgba(0,71,255,0.35);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 24px;
+    animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes pop-in {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .success-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 36px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .success-body {
+    font-size: 14px; color: var(--g400);
+    line-height: 1.7;
+  }
+  .success-body strong { color: var(--white); }
+  .success-email-note {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 0.18em;
+    color: var(--blue); text-transform: uppercase;
+    border: 1px solid rgba(0,71,255,0.3);
+    padding: 6px 14px; border-radius: 100px;
+  }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    margin-top: 28px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px; letter-spacing: 0.15em;
+    color: #2a2a2a; text-transform: uppercase;
+    text-align: center;
+    animation: fade-up 0.5s ease both 0.8s;
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 520px) {
+    .card { padding: 36px 24px 28px; margin-top: 76px; }
+    .card-title { font-size: 44px; }
+    .logo-bar { padding: 16px 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="grid-bg"></div>
+
+<!-- TOP BAR -->
+<header class="logo-bar">
+  <a class="logo" href="#">BIO<b>HABIT</b></a>
+  <span class="logo-tag">GDL · JALISCO· MEXICO </span>
+</header>
+
+<main class="page">
+  <div class="card">
+
+    <!-- Header -->
+    <p class="card-eyebrow">BIOHABIT · ZYMPHONY · MONA RAMONA CAFÉ </p>
+    <h1 class="card-title">THE<br><span class="accent">HABIT</span><br>RUN</h1>
+    <p class="card-sub">Social Run &amp; Coffee Party</p>
+
+    <div class="divider"></div>
+
+    <!-- Meta -->
+    <div class="meta">
+      <span class="pill"><span class="pill-dot"></span>28 de Junio</span>
+      <span class="pill"><span class="pill-dot"></span>7:30 AM</span>
+      <span class="pill"><span class="pill-dot"></span> Mona Ramona Café · GDL </span>
+    </div>
+
+    <!-- Counter -->
+    <div class="counter-row" id="counter-row">
+      <div class="counter-bar-track">
+        <div class="counter-bar-fill" id="counter-fill"></div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div id="form-body">
+      <div class="form-wrap">
+        <div class="field">
+          <label for="nombre">Nombre completo</label>
+          <input type="text" id="nombre" placeholder="Tu nombre" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email">
+        </div>
+        <button class="btn" id="submit-btn" onclick="handleRegister()">
+          <span id="btn-label">Registrarme</span>
+          <svg class="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="spinner" id="spinner"></div>
+        </button>
+        <p class="form-error" id="form-error"></p>
+        <p class="form-note"> Página de registro del evento</p>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">✓</div>
+      <h2 class="success-title">¡Estás dentro!</h2>
+      <p class="success-body">
+        Registro confirmado para <strong id="success-name"></strong>.<br>
+        Nos vemos el <strong>28 de junio a las 7:30 AM</strong><br>en Mona Ramona Café, Guadalajara.
+      </p>
+      <span class="success-email-note">📩 Revisa tu correo</span>
+    </div>
+
+  </div>
+
+  <p class="page-footer">© 2026 BioHabit · Edition 001</p>
+</main>
+<script>
+  // ─── CONFIGURACIÓN FINAL ─────────────────────────────────────
+  const SUPABASE_URL = 'https://xwzanyngzdmfbdpktwde.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3emFueW5nemRtZmJkcGt0d2RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDg0NDMsImV4cCI6MjA5NjY4NDQ0M30.wMtwCo1CJBMEAb1Fu1ZlULH1UaMBPcxenMfsQVRsW-E';
+  
+  // Nombre exacto de tu tabla
+  const TABLE_NAME = 'habit_run_registros';
+  // ─────────────────────────────────────────────────────────────
+
+  async function handleRegister() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const errorEl = document.getElementById('form-error');
+    const btn = document.getElementById('submit-btn');
+
+    if (!nombre || !email) {
+      errorEl.textContent = "Por favor, completa los campos.";
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Registrando...";
+
+    try {
+      // Llamada directa a tu tabla exacta
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE_NAME}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ nombre, email })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Error al guardar");
+      }
+
+      // ÉXITO
+      document.getElementById('form-body').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+      document.getElementById('success-name').textContent = nombre;
+
+    } catch (err) {
+      console.error(err);
+      errorEl.textContent = "Error: " + err.message;
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = "Registrarme";
+    }
+  }
+</script>  
+</body>
+</html>
